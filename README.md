@@ -18,11 +18,16 @@ with the time taken for each test.
 
 Currently only works with RSpec 3 and up.
 
-To run, clone the repo then in either a project specific .rspec file or
+
+To run, first install the gem:
+```ruby
+gem install dots_formatter
+```
+
+then in either a project specific .rspec file or
 in your home .rspec file, or directly on the command line:
 
 ```ruby
---require /path/to/dots_formatter/lib/dots_formmater.rb
 --format DotsFormatter
 ```
 
@@ -30,6 +35,5 @@ in your home .rspec file, or directly on the command line:
 
 * Port RSpec 3 to RSpec 2
 * Better Readme
-* Gem-ify
 * Debug as command line option
 * Tests
