@@ -22,12 +22,9 @@ To run, clone the repo then in either a project specific .rspec file or
 in your home .rspec file, or directly on the command line:
 
 ```ruby
---require /path/to/dots_formatter/dots_formmater.rb
+--require /path/to/dots_formatter/lib/dots_formmater.rb
 --format DotsFormatter
 ```
-
-
-
 
 ## TODO
 
