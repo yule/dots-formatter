@@ -7,7 +7,7 @@ module RSpec
       class Dots < BaseTextFormatter
 
         Formatters.register self, :example_passed, :example_pending, :example_started,
-              :example_failed, :start
+              :example_failed, :start, :dump_failures
         
         attr_accessor :passes, :fails, :runs, :pendings, :screen_width, :start_time, :example_start, :debug
 
@@ -21,15 +21,15 @@ module RSpec
           super(output)
         end
 
+        def start(notification)
+          @start_time = Time.now
+          @example_count = notification.count
+          output.puts #new line
+        end
+
         def example_started(example)
           @example_start = Time.now
           print_progress(example)
-        end
-
-        def start(notification)
-          @start_time = Time.now
-          super(notification)
-          output.puts #new line
         end
 
         def example_pending(example)
@@ -57,34 +57,40 @@ module RSpec
         def dump_summary(summary)
           output.puts
           output.puts
-          output.puts "Finished in #{Helpers.format_duration summary.duration}"
-          output.puts
           colour = (@fails == 0)? :success : :failure 
 
           output.puts ConsoleCodes.wrap("┌" + "-".ljust(50,"-")  + "┐", colour)
-          output.puts ConsoleCodes.wrap("│   #{summary.example_count} test#{summary.example_count == 1? '' : 's'}, #{@fails} failure#{@fails == 1? '' : 's'}".ljust(50) + " │", colour)
+          output.puts ConsoleCodes.wrap("│   #{summary.example_count} test#{summary.example_count == 1? '' : 's'}".ljust(50) + " |", colour)
+          output.puts ConsoleCodes.wrap("|   #{@fails} failure#{@fails == 1? '' : 's'}".ljust(50) + " |", colour)
+          output.puts ConsoleCodes.wrap("|   Ran in #{Helpers.format_duration summary.duration}".ljust(50) + " |", colour)
           output.puts ConsoleCodes.wrap("└" + "-".ljust(50,"-")  + "┘", colour)
           output.puts
-          super if @fails > 0
+          output.puts summary.colorized_rerun_commands
+        end
+
+        def dump_failures(notification)
+           output.puts
+           output.puts notification.fully_formatted_failed_examples
         end
 
         def print_progress(example, finish = false)
 
-          tot = ConsoleCodes.wrap("#{@runs} out of #{@example_count}", :white)
+          tot = ConsoleCodes.wrap("#{@example_count}", :white)
           fls = ConsoleCodes.wrap("#{fails}", :failure)
           suc = ConsoleCodes.wrap("#{@runs - @fails}", :success)
-          png = ConsoleCodes.wrap(" #{@pendings} pending.", :pending) if @pendings > 0
+          png = ConsoleCodes.wrap("#{@pendings}", :pending) 
           current_dur = Time.now - @start_time
           prev_dur = Time.now - @example_start
           tim = ConsoleCodes.wrap( "(Running #{Helpers.format_duration current_dur})", :cyan)
+          dot = ConsoleCodes.wrap(" ● ", @fails == 0 ? :success : :failure)
 
           if @debug
             run = ConsoleCodes.wrap(" Just ran: #{example.example.description}, which took ", :cyan)
             tim2 = ConsoleCodes.wrap(Helpers.format_duration(prev_dur), :red)
-            output.puts "  Ran #{tot} #{suc} : #{fls}.#{png} #{run}#{tim2}" if finish
+            output.puts " #{dot}#{suc}:#{fls}:#{png}/#{tot}#{dot} #{run}#{tim2}" if finish
           else
             run = ConsoleCodes.wrap(" Now running: #{example.example.description}", :cyan) unless finish
-            all = "\r  Ran #{tot} #{suc} : #{fls}.#{png} #{tim} #{run}".ljust(@screen_width)+"\r"
+            all = "\r  #{dot}#{suc}:#{fls}:#{png} / #{tot}#{dot} #{tim} #{run}".ljust(@screen_width)+"\r"
             output.print all
           end
         end
