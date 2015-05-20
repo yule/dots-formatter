@@ -65,12 +65,12 @@ module RSpec
           output.puts ConsoleCodes.wrap("|   Ran in #{Helpers.format_duration summary.duration}".ljust(50) + " |", colour)
           output.puts ConsoleCodes.wrap("└" + "-".ljust(50,"-")  + "┘", colour)
           output.puts
-          output.puts summary.colorized_rerun_commands
+          output.puts summary.colorized_rerun_commands if @fails > 0
         end
 
         def dump_failures(notification)
            output.puts
-           output.puts notification.fully_formatted_failed_examples
+           output.puts notification.fully_formatted_failed_examples if @fails > 0
         end
 
         def print_progress(example, finish = false)
