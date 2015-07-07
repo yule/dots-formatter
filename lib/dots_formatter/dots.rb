@@ -1,19 +1,18 @@
 # coding: utf-8
 RSpec::Support.require_rspec_core "formatters/base_text_formatter"
-module RSpec 
+module RSpec
   module Core
-    module Formatters 
+    module Formatters
 
       class Dots < BaseTextFormatter
 
         Formatters.register self, :example_passed, :example_pending, :example_started,
               :example_failed, :start, :dump_failures
-        
         attr_accessor :passes, :fails, :runs, :pendings, :screen_width, :start_time, :example_start, :debug
 
         def initialize(output)
           @passes = 0
-          @fails = 0 
+          @fails = 0
           @runs = 0
           @pendings = 0
           @screen_width = `tput cols`.to_i - 1
@@ -43,11 +42,11 @@ module RSpec
           @passes += 1
           print_progress(example, true)
         end
-        
+
         def example_failed(example)
           @fails += 1
           @runs += 1
-          failure = ConsoleCodes.wrap("\r Failed example: ", :failure) + 
+          failure = ConsoleCodes.wrap("\r Failed example: ", :failure) +
                     ConsoleCodes.wrap(example.example.full_description, :white)
           output.puts failure[0..@screen_width].ljust(@screen_width) unless @debug
           print_progress(example, true)
@@ -57,7 +56,7 @@ module RSpec
         def dump_summary(summary)
           output.puts
           output.puts
-          colour = (@fails == 0)? :success : :failure 
+          colour = (@fails == 0)? :success : :failure
 
           output.puts ConsoleCodes.wrap("┌" + "-".ljust(50,"-")  + "┐", colour)
           output.puts ConsoleCodes.wrap("│   #{summary.example_count} test#{summary.example_count == 1? '' : 's'}".ljust(50) + " |", colour)
@@ -78,7 +77,7 @@ module RSpec
           tot = ConsoleCodes.wrap("#{@example_count}", :white)
           fls = ConsoleCodes.wrap("#{fails}", :failure)
           suc = ConsoleCodes.wrap("#{@runs - @fails}", :success)
-          png = ConsoleCodes.wrap("#{@pendings}", :pending) 
+          png = ConsoleCodes.wrap("#{@pendings}", :pending)
           current_dur = Time.now - @start_time
           prev_dur = Time.now - @example_start
           tim = ConsoleCodes.wrap( "(Running #{Helpers.format_duration current_dur})", :cyan)
