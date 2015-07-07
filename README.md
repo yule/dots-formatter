@@ -33,7 +33,6 @@ in your home .rspec file, or directly on the command line:
 
 ## TODO
 
-* Port RSpec 3 to RSpec 2
 * Better Readme
 * Debug as command line option
 * Tests
