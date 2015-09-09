@@ -88,8 +88,8 @@ module RSpec
             tim2 = ConsoleCodes.wrap(Helpers.format_duration(prev_dur), :red)
             output.puts " #{dot}#{suc}:#{fls}:#{png}/#{tot}#{dot} #{run}#{tim2}" if finish
           else
-            run = ConsoleCodes.wrap(" Now running: #{example.example.description}", :cyan) unless finish
-            all = "\r  #{dot}#{suc}:#{fls}:#{png} / #{tot}#{dot} #{tim} #{run}".ljust(@screen_width)+"\r"
+            run = ConsoleCodes.wrap(" Now running: #{example.example.description}"[0..@screen_width - 130], :cyan) unless finish
+            all = "\r  #{dot}#{suc}:#{fls}:#{png} / #{tot}#{dot} #{tim} #{run if @screen_width > 180}".ljust(@screen_width)+"\r"
             output.print all
           end
         end

@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
   s.name        = 'dots_formatter'
-  s.version     = '0.0.2'
-  s.date        = '2015-07-07'
+  s.version     = '0.0.3'
+  s.date        = '2015-09-09'
   s.summary     = "A simple, informative RSpec formatter"
   s.description = "Get instance feedback on number of passed:failed:pending / total with quick failure status"
   s.authors     = ["Paul Brennan"]
