@@ -8,7 +8,17 @@ module RSpec
 
         Formatters.register self, :example_passed, :example_pending, :example_started,
               :example_failed, :start, :dump_failures
-        attr_accessor :passes, :fails, :runs, :pendings, :screen_width, :start_time, :example_start, :debug
+        attr_accessor :passes,
+          :fails,
+          :runs,
+          :pendings,
+          :screen_width,
+          :start_time,
+          :example_start,
+          :debug,
+          :show_time,
+          :show_description
+
 
         def initialize(output)
           @passes = 0
@@ -17,6 +27,8 @@ module RSpec
           @pendings = 0
           @screen_width = `tput cols`.to_i - 1
           @debug = false
+          @show_time = @screen_width > 50
+          @show_description = @screen_width > 80
           super(output)
         end
 
@@ -57,12 +69,13 @@ module RSpec
           output.puts
           output.puts
           colour = (@fails == 0)? :success : :failure
+          max = [50, @screen_width - 1].min
 
-          output.puts ConsoleCodes.wrap("┌" + "-".ljust(50,"-")  + "┐", colour)
-          output.puts ConsoleCodes.wrap("│   #{summary.example_count} test#{summary.example_count == 1? '' : 's'}".ljust(50) + " |", colour)
-          output.puts ConsoleCodes.wrap("|   #{@fails} failure#{@fails == 1? '' : 's'}".ljust(50) + " |", colour)
-          output.puts ConsoleCodes.wrap("|   Ran in #{Helpers.format_duration summary.duration}".ljust(50) + " |", colour)
-          output.puts ConsoleCodes.wrap("└" + "-".ljust(50,"-")  + "┘", colour)
+          output.puts ConsoleCodes.wrap("┌" + "-".ljust(max,"-")  + "┐", colour)
+          output.puts ConsoleCodes.wrap("│   #{summary.example_count} test#{summary.example_count == 1? '' : 's'}".ljust(max) + " |", colour)
+          output.puts ConsoleCodes.wrap("|   #{@fails} failure#{@fails == 1? '' : 's'}".ljust(max) + " |", colour)
+          output.puts ConsoleCodes.wrap("|   Ran in #{Helpers.format_duration summary.duration}".ljust(max) + " |", colour)
+          output.puts ConsoleCodes.wrap("└" + "-".ljust(max,"-")  + "┘", colour)
           output.puts
           output.puts summary.colorized_rerun_commands if @fails > 0
         end
@@ -88,9 +101,14 @@ module RSpec
             tim2 = ConsoleCodes.wrap(Helpers.format_duration(prev_dur), :red)
             output.puts " #{dot}#{suc}:#{fls}:#{png}/#{tot}#{dot} #{run}#{tim2}" if finish
           else
-            run = ConsoleCodes.wrap(" Now running: #{example.example.description}"[0..@screen_width - 130], :cyan) unless finish
-            all = "\r  #{dot}#{suc}:#{fls}:#{png} / #{tot}#{dot} #{tim} #{run if @screen_width > 180}".ljust(@screen_width)+"\r"
-            output.print all
+            all = "\r #{dot}#{suc}:#{fls}:#{png}"
+            all << " / #{tot}#{dot}"
+            all << " #{tim}" if @show_time
+            extra_pixels = @screen_width - 65
+            run = ConsoleCodes.wrap(" Now running: #{example.example.description[0..extra_pixels]}", :cyan) unless finish
+            all << " #{run}" if @show_description
+
+            output.print all.ljust(@screen_width + (@show_time? 65 : 25))+"\r"
           end
         end
 
