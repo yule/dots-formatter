@@ -82,7 +82,15 @@ module RSpec
 
         def dump_failures(notification)
            output.puts
-           output.puts notification.fully_formatted_failed_examples if @fails > 0
+           i = 0
+           notification.fully_formatted_failed_examples.split("\n").each do |e|
+             if (e =~ /^\s*\d/) == 0
+               i = 0
+             else
+               i += 1
+             end
+             output.puts e if i < 12
+           end if @fails > 0
         end
 
         def print_progress(example, finish = false)
